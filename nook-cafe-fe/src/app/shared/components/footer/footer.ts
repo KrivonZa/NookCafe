@@ -111,8 +111,8 @@ import { MatIconModule } from '@angular/material/icon';
       <div
         class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[rgba(255,255,255,0.06)] pt-8 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400"
       >
-        <p>&copy; 2026 Nook Café. Bảo lưu mọi quyền.</p>
-        <p class="mt-2 sm:mt-0">Thiết kế bởi Đội ngũ Nook Café</p>
+        <p>&copy; 2026 Nook Café. All rights reserved.</p>
+        <p class="mt-2 sm:mt-0">Designed by the Nook Café Team</p>
       </div>
     </footer>
   `,

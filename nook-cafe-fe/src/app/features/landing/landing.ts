@@ -16,7 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
       <div class="absolute inset-0 z-0">
         <img 
           src="/homepage/hero.png"
-          alt="Nook Café Hero"
+          alt="Nook Café Hero Banner"
           class="object-cover w-full h-full"
         />
         <div class="absolute inset-0 bg-gradient-to-r from-[var(--color-primary-dark)] via-[var(--color-primary-dark)]/60 to-transparent"></div>
