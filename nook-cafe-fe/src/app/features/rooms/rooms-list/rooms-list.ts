@@ -1,7 +1,8 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RoomService } from '../../../services/room.service';
+import { Room } from '../../../models/room.model';
 import { RoomCardComponent } from '../../../shared/components/room-card/room-card';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -103,31 +104,22 @@ export class RoomsListComponent {
 
   searchQuery = signal<string>('');
   selectedCapacity = signal<string>('all');
+  filteredRooms = signal<Room[]>([]);
 
-  // Computed signal for filtered rooms list
-  filteredRooms = computed(() => {
-    const query = this.searchQuery().trim().toLowerCase();
-    const capacityFilter = this.selectedCapacity();
-    const allRooms = this.roomService.rooms();
-
-    return allRooms.filter(room => {
-      // 1. Text Search query filter
-      const matchesSearch = room.name.toLowerCase().includes(query) || 
-                            room.description.toLowerCase().includes(query);
-
-      // 2. Capacity filter
-      let matchesCapacity = true;
-      if (capacityFilter === 'small') {
-        matchesCapacity = room.capacityMax <= 6;
-      } else if (capacityFilter === 'medium') {
-        matchesCapacity = room.capacityMin >= 6 && room.capacityMax <= 10;
-      } else if (capacityFilter === 'large') {
-        matchesCapacity = room.capacityMin >= 10;
-      }
-
-      return matchesSearch && matchesCapacity;
+  constructor() {
+    effect(() => {
+      const search = this.searchQuery();
+      const capacity = this.selectedCapacity();
+      this.roomService.searchWorkspaces(search, capacity, false).subscribe({
+        next: (rooms) => {
+          this.filteredRooms.set(rooms);
+        },
+        error: (err) => {
+          console.error('Error fetching filtered workspaces:', err);
+        }
+      });
     });
-  });
+  }
 
   resetFilters(): void {
     this.searchQuery.set('');

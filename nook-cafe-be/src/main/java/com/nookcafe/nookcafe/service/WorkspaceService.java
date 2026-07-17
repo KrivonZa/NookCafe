@@ -35,6 +35,26 @@ public class WorkspaceService {
     }
 
     @Transactional(readOnly = true)
+    public List<WorkspaceResponse> searchWorkspaces(WorkspaceStatus status, String search, Short capacityMin, Short capacityMax) {
+        List<Workspace> workspaces = workspaceRepository.findAll();
+        
+        return workspaces.stream()
+                .filter(w -> status == null || w.getStatus() == status)
+                .filter(w -> {
+                    if (search == null || search.trim().isEmpty()) {
+                        return true;
+                    }
+                    String term = search.trim().toLowerCase();
+                    return (w.getName() != null && w.getName().toLowerCase().contains(term)) ||
+                           (w.getDescription() != null && w.getDescription().toLowerCase().contains(term));
+                })
+                .filter(w -> capacityMin == null || w.getCapacityMax() >= capacityMin)
+                .filter(w -> capacityMax == null || w.getCapacityMin() <= capacityMax)
+                .map(WorkspaceResponse::new)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public WorkspaceResponse getWorkspaceById(Long id) {
         Workspace workspace = workspaceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found with id: " + id));
@@ -54,6 +74,20 @@ public class WorkspaceService {
         Workspace workspace = workspaceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Workspace not found with id: " + id));
         workspace.setImageUrl(imageUrl);
+        return new WorkspaceResponse(workspaceRepository.save(workspace));
+    }
+
+    @Transactional
+    public WorkspaceResponse updateWorkspace(Long id, WorkspaceResponse dto) {
+        Workspace workspace = workspaceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Workspace not found with id: " + id));
+        if (dto.getName() != null) workspace.setName(dto.getName());
+        if (dto.getDescription() != null) workspace.setDescription(dto.getDescription());
+        if (dto.getCapacityMin() != null) workspace.setCapacityMin(dto.getCapacityMin());
+        if (dto.getCapacityMax() != null) workspace.setCapacityMax(dto.getCapacityMax());
+        if (dto.getPricePerHour() != null) workspace.setPricePerHour(dto.getPricePerHour());
+        if (dto.getStatus() != null) workspace.setStatus(dto.getStatus());
+        if (dto.getImageUrl() != null) workspace.setImageUrl(dto.getImageUrl());
         return new WorkspaceResponse(workspaceRepository.save(workspace));
     }
 }

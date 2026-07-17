@@ -323,11 +323,21 @@ export class RoomDetailComponent implements OnInit {
     // Get ID parameter
     const idParam = this.route.snapshot.paramMap.get('id');
     if (idParam) {
-      const roomObj = this.roomService.getRoomById(Number(idParam));
-      if (roomObj) {
-        this.room.set(roomObj);
-        this.activeImage.set(roomObj.image);
-      }
+      this.roomService.getWorkspaceDetails(Number(idParam)).subscribe({
+        next: (roomObj) => {
+          this.room.set(roomObj);
+          this.activeImage.set(roomObj.image);
+        },
+        error: (err) => {
+          console.error('Error loading room detail from API:', err);
+          // Fallback to local service cache
+          const roomObj = this.roomService.getRoomById(Number(idParam));
+          if (roomObj) {
+            this.room.set(roomObj);
+            this.activeImage.set(roomObj.image);
+          }
+        }
+      });
     }
 
     // Build form

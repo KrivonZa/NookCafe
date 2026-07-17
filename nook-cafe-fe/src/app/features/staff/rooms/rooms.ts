@@ -125,11 +125,22 @@ export class StaffRoomsComponent {
 
     dialogRef.afterClosed().subscribe((result: Room | undefined) => {
       if (result) {
-        this.roomService.updateRoom(result.id, result);
-        this.snackBar.open(`Cập nhật phòng ${result.name} thành công!`, 'Đóng', {
-          duration: 3000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top'
+        this.roomService.updateRoom(result.id, result).subscribe({
+          next: (updated) => {
+            this.snackBar.open(`Cập nhật phòng ${updated.name} thành công!`, 'Đóng', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top'
+            });
+          },
+          error: (err) => {
+            console.error('Failed to update room:', err);
+            this.snackBar.open('Cập nhật phòng thất bại!', 'Đóng', {
+              duration: 3000,
+              horizontalPosition: 'end',
+              verticalPosition: 'top'
+            });
+          }
         });
       }
     });
